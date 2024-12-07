@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Quiz - Syllabus A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .timer {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: red;
+            margin-bottom: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .question h3 {
+            margin: 0 0 10px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 10px 0;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #066d3c;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #dff0d8;
+            border-radius: 10px;
+            display: none;
+        }
+        .result-details {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Physics Quiz - Syllabus A</h1>
+        <p>Test your knowledge of chapters 1-5!</p>
+    </header>
+    <div class="content">
+        <div class="timer" id="timer">Time Remaining: 02:00</div>
+        <form id="quizForm">
+            <div class="question" data-correct="Newton">
+                <h3>1. What is the SI unit of force?</h3>
+                <ul class="options">
+                    <li><input type="radio" name="q1" value="Joule"> Joule</li>
+                    <li><input type="radio" name="q1" value="Pascal"> Pascal</li>
+                    <li><input type="radio" name="q1" value="Newton"> Newton</li>
+                    <li><input type="radio" name="q1" value="Watt"> Watt</li>
+                </ul>
+            </div>
+            <div class="question" data-correct="9.8 m/s²">
+                <h3>2. What is the acceleration due to gravity on Earth?</h3>
+                <ul class="options">
+                    <li><input type="radio" name="q2" value="5.8 m/s²"> 5.8 m/s²</li>
+                    <li><input type="radio" name="q2" value="8.9 m/s²"> 8.9 m/s²</li>
+                    <li><input type="radio" name="q2" value="9.8 m/s²"> 9.8 m/s²</li>
+                    <li><input type="radio" name="q2" value="10.2 m/s²"> 10.2 m/s²</li>
+                </ul>
+            </div>
+            <div class="question" data-correct="Newton's Third Law">
+                <h3>3. Which law states that "For every action, there is an equal and opposite reaction"?</h3>
+                <ul class="options">
+                    <li><input type="radio" name="q3" value="Newton's Third Law"> Newton's Third Law</li>
+                    <li><input type="radio" name="q3" value="Newton's First Law"> Newton's First Law</li>
+                    <li><input type="radio" name="q3" value="Newton's Second Law"> Newton's Second Law</li>
+                    <li><input type="radio" name="q3" value="Law of Conservation of Momentum"> Law of Conservation of Momentum</li>
+                </ul>
+            </div>
+            <button type="button" onclick="submitQuiz()">Submit Quiz</button>
+        </form>
+        <div class="result" id="result">
+            <h2>Your Score: <span id="score">0</span>/12</h2>
+            <div class="result-details" id="resultDetails"></div>
+        </div>
+    </div>
+    <script>
+        let timeRemaining = 120; // 2 minutes
+        const timerElement = document.getElementById("timer");
+
+        function startTimer() {
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `Time Remaining: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                timeRemaining--;
+
+                if (timeRemaining < 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function submitQuiz() {
+            const form = document.getElementById("quizForm");
+            const questions = document.querySelectorAll(".question");
+            let totalScore = 0;
+            let resultDetails = "";
+
+            questions.forEach((question, index) => {
+                const correctAnswer = question.getAttribute("data-correct");
+                const selectedOption = question.querySelector('input[type="radio"]:checked');
+                const questionText = question.querySelector("h3").textContent;
+                const questionNumber = index + 1;
+
+                if (selectedOption) {
+                    const selectedValue = selectedOption.value;
+                    if (selectedValue === correctAnswer) {
+                        totalScore += 4; // Add 4 marks for correct answer
+                        resultDetails += `<p class="correct">Q${questionNumber}: ${questionText}<br>✅ Correct! You selected: ${selectedValue} (+4)</p>`;
+                    } else {
+                        totalScore -= 1; // Subtract 1 mark for wrong answer
+                        resultDetails += `<p class="wrong">Q${questionNumber}: ${questionText}<br>❌ Wrong! You selected: ${selectedValue} (-1)<br>✔ Correct Answer: ${correctAnswer}</p>`;
+                    }
+                } else {
+                    resultDetails += `<p class="wrong">Q${questionNumber}: ${questionText}<br>❌ Not answered! (+0)<br>✔ Correct Answer: ${correctAnswer}</p>`;
+                }
+            });
+
+            document.getElementById("score").innerText = totalScore;
+            document.getElementById("resultDetails").innerHTML = resultDetails;
+            document.getElementById("result").style.display = "block";
+            form.style.display = "none";
+            timerElement.style.display = "none";
+        }
+
+        // Start the timer
+        window.onload = startTimer;
+    </script>
+</body>
+</html>
