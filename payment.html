@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      text-align: center;
+    }
+    .box {
+      background: white;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    button {
+      padding: 12px 18px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Confirm & Pay 💳</h2>
+    <p><strong>From:</strong> <span id="from"></span></p>
+    <p><strong>To:</strong> <span id="to"></span></p>
+    <p><strong>Date:</strong> <span id="date"></span></p>
+    <p><strong>Seats:</strong> <span id="seats"></span></p>
+    <p><strong>Total:</strong> ₹<span id="amount"></span></p>
+    <br/>
+    <button onclick="payNow()">Pay with Razorpay</button>
+  </div>
+
+  <script>
+    const data = JSON.parse(sessionStorage.getItem("bookingData"));
+
+    document.getElementById("from").textContent = data.from;
+    document.getElementById("to").textContent = data.to;
+    document.getElementById("date").textContent = data.date;
+    document.getElementById("seats").textContent = data.seats.join(", ");
+    document.getElementById("amount").textContent = data.total;
+
+    function payNow() {
+      const options = {
+        key: "rzp_test_YourKeyHere", // Replace with your Razorpay test key
+        amount: data.total * 100,
+        currency: "INR",
+        name: "SKY Bus Booking",
+        description: "Seat Booking Payment",
+        image: "https://i.imgur.com/NPuI0Jf.png", // optional logo
+        handler: function (response) {
+          alert("Payment Successful ✅\nBooking ID: SKY" + Date.now());
+          window.location.href = "success.html";
+        },
+        prefill: {
+          name: "Test User",
+          email: "test@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#007bff"
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+  </script>
+</body>
+</html>
