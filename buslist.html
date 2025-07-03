@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Available Buses</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .bus {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+    button {
+      padding: 8px 12px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Available Buses</h2>
+  <div id="busList"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    const to = params.get("to");
+    const date = params.get("date");
+
+    const buses = [
+      { id: 1, name: "SRM Travels", time: "10:30 PM", price: "₹650" },
+      { id: 2, name: "KPN Travels", time: "11:00 PM", price: "₹600" }
+    ];
+
+    const container = document.getElementById("busList");
+    buses.forEach(bus => {
+      const div = document.createElement("div");
+      div.className = "bus";
+      div.innerHTML = `
+        <strong>${bus.name}</strong><br/>
+        Departure: ${bus.time}<br/>
+        Price: ${bus.price}<br/>
+        <button onclick="window.location.href='seats.html?bus=${bus.id}&from=${from}&to=${to}&date=${date}'">View Seats</button>
+      `;
+      container.appendChild(div);
+    });
+  </script>
+</body>
+</html>
