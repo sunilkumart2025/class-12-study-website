@@ -1,45 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SKY Bus Booking</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SKY Bus Booking 🚌</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 100px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div id="nav" style="padding: 20px;">
-    <!-- Login/Logout will be injected here -->
+  <div class="container">
+    <h2>Book Your Bus 🚌</h2>
+    <form id="searchForm">
+      <input type="text" id="from" placeholder="From (e.g. Chennai)" required />
+      <input type="text" id="to" placeholder="To (e.g. Madurai)" required />
+      <input type="date" id="date" required />
+      <button type="submit">Search Buses</button>
+    </form>
   </div>
 
-  <h1>Welcome to SKY Bus Booking 🚌</h1>
-  <p>Search & book your seat quickly!</p>
-
   <script>
-    const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      const nav = document.getElementById("nav");
-
-      if (session?.user) {
-        nav.innerHTML = `
-          👋 Welcome! 
-          <a href="profile.html">Profile</a> |
-          <button onclick="logout()">Logout</button>
-        `;
-      } else {
-        nav.innerHTML = `
-          <a href="login.html">Login</a> |
-          <a href="signup.html">Signup</a>
-        `;
-      }
-    }
-
-    async function logout() {
-      await supabase.auth.signOut();
-      location.reload();
-    }
-
-    checkAuth();
+    document.getElementById("searchForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+      const date = document.getElementById("date").value;
+      window.location.href = `buslist.html?from=${from}&to=${to}&date=${date}`;
+    });
   </script>
 </body>
 </html>
