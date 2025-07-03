@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Available Buses</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f8f8f8; }
+    .bus-card {
+      background: white;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .bus-card h3 { margin: 0 0 10px; }
+    .bus-info { margin: 5px 0; }
+    button {
+      padding: 10px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Available Buses</h2>
+  <div id="busList">Loading...</div>
+
+  <script>
+    const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const from = urlParams.get('from');
+    const to = urlParams.get('to');
+    const date = urlParams.get('date');
+
+    async function fetchBuses() {
+      const { data: buses, error } = await supabase
+        .from('buses')
+        .select('*')
+        .eq('from', from)
+        .eq('to', to)
+        .eq('date', date);
+
+      const busList = document.getElementById('busList');
+      busList.innerHTML = '';
+
+      if (error || buses.length === 0) {
+        busList.innerHTML = `<p>❌ No buses found for ${from} → ${to} on ${date}</p>`;
+        return;
+      }
+
+      buses.forEach(bus => {
+        const div = document.createElement('div');
+        div.className = 'bus-card';
+        div.innerHTML = `
+          <h3>${bus.name} 🚌</h3>
+          <div class="bus-info">Route: ${bus.from} → ${bus.to}</div>
+          <div class="bus-info">Boarding: ${bus.boarding_point} @ ${bus.departure_time}</div>
+          <div class="bus-info">Seat Classes & Prices: 
+            <ul>
+              <li>AC: ₹${bus.price_ac}</li>
+              <li>Non-AC: ₹${bus.price_non_ac}</li>
+              <li>Sleeper: ₹${bus.price_sleeper}</li>
+            </ul>
+          </div>
+          <button onclick="bookNow('${bus.id}')">Book Now</button>
+        `;
+        busList.appendChild(div);
+      });
+    }
+
+    function bookNow(busId) {
+      // Redirect to seat booking page with bus ID
+      window.location.href = `book.html?bus=${busId}`;
+    }
+
+    fetchBuses();
+  </script>
+</body>
+</html>
