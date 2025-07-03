@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - SKY Bus</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    .bus {
+      background: #e6f0ff;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Admin Panel 🛠️</h2>
+    <form id="busForm">
+      <input type="text" id="busName" placeholder="Bus Name (e.g. SRM Travels)" required />
+      <input type="text" id="from" placeholder="From City" required />
+      <input type="text" id="to" placeholder="To City" required />
+      <input type="date" id="date" required />
+      <input type="time" id="time" required />
+      <input type="number" id="price" placeholder="Price per seat (e.g. 650)" required />
+      <button type="submit">Add Bus</button>
+    </form>
+
+    <div id="busList">
+      <h3 style="margin-top:20px;">Available Buses:</h3>
+      <!-- Buses will be shown here -->
+    </div>
+  </div>
+
+  <script>
+    const busForm = document.getElementById("busForm");
+    const busList = document.getElementById("busList");
+
+    const buses = JSON.parse(localStorage.getItem("buses") || "[]");
+
+    function renderBuses() {
+      busList.innerHTML = "<h3>Available Buses:</h3>";
+      buses.forEach((bus, index) => {
+        const div = document.createElement("div");
+        div.className = "bus";
+        div.innerHTML = `
+          <strong>${bus.name}</strong><br/>
+          Route: ${bus.from} → ${bus.to}<br/>
+          Date: ${bus.date} at ${bus.time}<br/>
+          ₹${bus.price} per seat
+        `;
+        busList.appendChild(div);
+      });
+    }
+
+    busForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const newBus = {
+        name: document.getElementById("busName").value,
+        from: document.getElementById("from").value,
+        to: document.getElementById("to").value,
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        price: document.getElementById("price").value,
+      };
+
+      buses.push(newBus);
+      localStorage.setItem("buses", JSON.stringify(buses));
+      renderBuses();
+      busForm.reset();
+      alert("✅ Bus added successfully!");
+    });
+
+    renderBuses();
+  </script>
+</body>
+</html>
