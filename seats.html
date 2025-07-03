@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Seats</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: auto;
+    }
+
+    .seat {
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+
+    .seat.booked {
+      background: gray;
+      cursor: not-allowed;
+    }
+
+    .seat.selected {
+      background: #ffc107;
+      color: black;
+    }
+
+    .info {
+      max-width: 300px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 16px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center">Choose Your Seats 🎫</h2>
+  <div class="layout" id="seatLayout"></div>
+
+  <div class="info">
+    <p><strong>Selected Seats:</strong> <span id="selectedSeats">None</span></p>
+    <p><strong>Total:</strong> ₹<span id="total">0</span></p>
+    <button onclick="proceedToPayment()">Proceed to Pay</button>
+  </div>
+
+  <script>
+    const bookedSeats = [3, 6, 9, 16]; // hardcoded booked seat IDs
+    const seatPrice = 150;
+    const selected = [];
+
+    const layout = document.getElementById("seatLayout");
+    const selectedText = document.getElementById("selectedSeats");
+    const totalText = document.getElementById("total");
+
+    for (let i = 1; i <= 40; i++) {
+      const seat = document.createElement("div");
+      seat.className = "seat";
+      seat.textContent = i;
+
+      if (bookedSeats.includes(i)) {
+        seat.classList.add("booked");
+      }
+
+      seat.addEventListener("click", () => {
+        if (seat.classList.contains("booked")) return;
+
+        if (seat.classList.contains("selected")) {
+          seat.classList.remove("selected");
+          const index = selected.indexOf(i);
+          selected.splice(index, 1);
+        } else {
+          seat.classList.add("selected");
+          selected.push(i);
+        }
+
+        selectedText.textContent = selected.length ? selected.join(", ") : "None";
+        totalText.textContent = selected.length * seatPrice;
+      });
+
+      layout.appendChild(seat);
+    }
+
+    function proceedToPayment() {
+      if (selected.length === 0) {
+        alert("Please select at least one seat!");
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get("from");
+      const to = params.get("to");
+      const date = params.get("date");
+      const bus = params.get("bus");
+
+      const data = {
+        from, to, date, bus,
+        seats: selected,
+        total: selected.length * seatPrice
+      };
+
+      // Store in sessionStorage
+      sessionStorage.setItem("bookingData", JSON.stringify(data));
+
+      // Redirect to payment
+      window.location.href = "payment.html";
+    }
+  </script>
+</body>
+</html>
