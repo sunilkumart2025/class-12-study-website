@@ -34,7 +34,18 @@
     }
   </style>
 </head>
+
 <body>
+<button onclick="logout()" style="position: fixed; top: 20px; right: 20px;">Logout</button>
+
+<script>
+  async function logout() {
+    const { error } = await supabase.auth.signOut();
+    localStorage.removeItem("user");
+    alert("👋 Logged out");
+    window.location.href = "login.html";
+  }
+</script>
   <div class="container">
     <h2>Book Your Bus 🚌</h2>
     <form id="searchForm">
