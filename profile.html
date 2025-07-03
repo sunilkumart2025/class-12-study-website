@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Profile</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h2>👤 Your Profile</h2>
+  <input type="text" id="name" placeholder="Full Name" />
+  <input type="text" id="phone" placeholder="Phone" />
+  <input type="text" id="city" placeholder="City" />
+  <button onclick="updateProfile()">Save Profile</button>
+
+  <script>
+    const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
+    let userId = null;
+
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Please log in");
+        location.href = "login.html";
+        return;
+      }
+
+      userId = user.id;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (data) {
+        document.getElementById("name").value = data.full_name || "";
+        document.getElementById("phone").value = data.phone || "";
+        document.getElementById("city").value = data.city || "";
+      }
+    }
+
+    async function updateProfile() {
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const city = document.getElementById("city").value;
+
+      const { error } = await supabase.from("profiles").upsert({
+        id: userId,
+        full_name: name,
+        phone: phone,
+        city: city
+      });
+
+      if (error) alert("❌ Error saving: " + error.message);
+      else alert("✅ Profile updated");
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
