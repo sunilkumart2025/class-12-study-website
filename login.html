@@ -1,40 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-    .box { max-width: 400px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    input, button { width: 100%; padding: 12px; margin: 10px 0; }
-    button { background: #28a745; color: white; border: none; cursor: pointer; }
-  </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Login 🔐</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button onclick="login()">Login</button>
-    <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
-  </div>
+  <h2>Login</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
 
   <script>
-    const supabase = supabase.createClient('https://YOUR_PROJECT.supabase.co', 'YOUR_ANON_KEY');
+    const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
 
     async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-      const { user, error, session } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        alert("Error: " + error.message);
+        alert(error.message);
       } else {
-        localStorage.setItem("user", JSON.stringify(user));
-        alert("✅ Login successful!");
-        window.location.href = "index.html";
+        alert("Login successful ✅");
+        location.href = "index.html";
       }
     }
   </script>
