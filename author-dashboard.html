@@ -1,119 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Author Dashboard - SKY Bus</title>
+  <title>Author Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
-    body { font-family: Arial; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    input, button, select { width: 100%; padding: 10px; margin: 10px 0; }
-    .bus-card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; background: #f0f8ff; border-radius: 6px; }
-    h2 { text-align: center; }
-    .edit-btn { background: orange; border: none; color: white; padding: 8px; cursor: pointer; margin-top: 8px; }
+    body { font-family: Arial; padding: 20px; background: #f2f2f2; }
+    h2 { margin-bottom: 20px; }
+    .form-section, .bus-list { background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+    input, select { padding: 10px; margin: 5px 0; width: 100%; border: 1px solid #ccc; border-radius: 6px; }
+    button { padding: 10px 15px; margin-top: 10px; border: none; background: #28a745; color: white; border-radius: 6px; cursor: pointer; }
+    .bus-card { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🚌 Author Dashboard</h2>
 
-    <div id="authorForm">
-      <h3>Add New Bus</h3>
-      <input type="text" id="busName" placeholder="Bus Name (e.g. SRM Express)" required />
-      <input type="text" id="from" placeholder="From City" required />
-      <input type="text" id="to" placeholder="To City" required />
-      <input type="text" id="boarding" placeholder="Boarding Point" required />
-      <input type="text" id="departure" placeholder="Departure Point" required />
-      <input type="date" id="date" required />
-      <input type="time" id="time" required />
-      <input type="number" id="priceAC" placeholder="Price - AC" required />
-      <input type="number" id="priceNonAC" placeholder="Price - Non-AC" required />
-      <input type="number" id="priceSleeper" placeholder="Price - Sleeper" required />
-      <input type="number" id="seats" placeholder="Total Seats" required />
-      <button onclick="addBus()">➕ Add Bus</button>
-    </div>
+<h2>🛠️ Bus Owner Dashboard</h2>
 
-    <div id="busList">
-      <h3>🗂️ Your Buses</h3>
-      <!-- Bus items will show here -->
-    </div>
-  </div>
+<div class="form-section">
+  <h3>Add New Bus</h3>
+  <input type="text" id="busName" placeholder="Bus Name" />
+  <input type="text" id="from" placeholder="From (e.g., Chennai)" />
+  <input type="text" id="to" placeholder="To (e.g., Madurai)" />
+  <input type="text" id="boarding" placeholder="Boarding Point" />
+  <input type="text" id="departure" placeholder="Departure Point" />
+  <input type="time" id="time" placeholder="Departure Time" />
+  <input type="date" id="date" placeholder="Travel Date" />
+  <input type="number" id="seats" placeholder="Total Seats" />
+  <input type="number" id="priceAC" placeholder="Price for AC" />
+  <input type="number" id="priceNonAC" placeholder="Price for Non-AC" />
+  <input type="number" id="priceSleeper" placeholder="Price for Sleeper" />
+  <button onclick="addBus()">➕ Add Bus</button>
+</div>
 
-  <script>
-    const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
-    let currentUserId = null;
+<div class="bus-list">
+  <h3>Your Buses</h3>
+  <div id="busContainer">Loading buses...</div>
+</div>
 
-    async function checkAuthor() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        alert("❌ Please login first");
-        window.location.href = "login.html";
-        return;
-      }
+<script>
+const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
 
-      const email = session.user.email;
-      currentUserId = session.user.id;
+let currentUser = null;
 
-      // Allow only emails from specific domain
-      if (!email.endsWith("@skybus.com")) {
-        alert("❌ Access denied: Not an Author");
-        window.location.href = "index.html";
-        return;
-      }
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = session.user;
+  loadBuses();
+}
 
-      loadBuses();
-    }
+async function addBus() {
+  const bus = {
+    author_id: currentUser.id,
+    name: document.getElementById("busName").value,
+    from: document.getElementById("from").value,
+    to: document.getElementById("to").value,
+    boarding_point: document.getElementById("boarding").value,
+    departure_point: document.getElementById("departure").value,
+    departure_time: document.getElementById("time").value,
+    date: document.getElementById("date").value,
+    total_seats: +document.getElementById("seats").value,
+    price_ac: +document.getElementById("priceAC").value,
+    price_non_ac: +document.getElementById("priceNonAC").value,
+    price_sleeper: +document.getElementById("priceSleeper").value,
+    booked_seats: []
+  };
 
-    async function addBus() {
-      const bus = {
-        author_id: currentUserId,
-        name: document.getElementById("busName").value,
-        from: document.getElementById("from").value,
-        to: document.getElementById("to").value,
-        boarding_point: document.getElementById("boarding").value,
-        departure_point: document.getElementById("departure").value,
-        date: document.getElementById("date").value,
-        departure_time: document.getElementById("time").value,
-        price_ac: +document.getElementById("priceAC").value,
-        price_non_ac: +document.getElementById("priceNonAC").value,
-        price_sleeper: +document.getElementById("priceSleeper").value,
-        total_seats: +document.getElementById("seats").value
-      };
+  const { error } = await supabase.from("buses").insert(bus);
+  if (error) {
+    alert("❌ Failed to add bus.");
+    console.error(error);
+  } else {
+    alert("✅ Bus added!");
+    loadBuses();
+  }
+}
 
-      const { error } = await supabase.from("buses").insert(bus);
-      if (error) {
-        alert("❌ Error: " + error.message);
-      } else {
-        alert("✅ Bus added!");
-        loadBuses();
-      }
-    }
+async function loadBuses() {
+  const { data: buses, error } = await supabase
+    .from("buses")
+    .select("*")
+    .eq("author_id", currentUser.id)
+    .order("date", { ascending: true });
 
-    async function loadBuses() {
-      const { data: buses, error } = await supabase
-        .from("buses")
-        .select("*")
-        .eq("author_id", currentUserId)
-        .order("date", { ascending: true });
+  const container = document.getElementById("busContainer");
+  container.innerHTML = "";
 
-      const container = document.getElementById("busList");
-      container.innerHTML = "<h3>🗂️ Your Buses</h3>";
+  if (error || buses.length === 0) {
+    container.innerHTML = "<p>No buses found.</p>";
+    return;
+  }
 
-      buses.forEach(bus => {
-        const div = document.createElement("div");
-        div.className = "bus-card";
-        div.innerHTML = `
-          <strong>${bus.name}</strong><br/>
-          Route: ${bus.from} → ${bus.to}<br/>
-          Boarding: ${bus.boarding_point}, Departure: ${bus.departure_point}<br/>
-          Time: ${bus.date} at ${bus.departure_time}<br/>
-          💺 AC: ₹${bus.price_ac}, Non-AC: ₹${bus.price_non_ac}, Sleeper: ₹${bus.price_sleeper}<br/>
-          Seats: ${bus.total_seats}
-        `;
-        container.appendChild(div);
-      });
-    }
+  buses.forEach(bus => {
+    const card = document.createElement("div");
+    card.className = "bus-card";
+    card.innerHTML = `
+      <strong>${bus.name}</strong><br/>
+      Route: ${bus.from} → ${bus.to}<br/>
+      Date: ${bus.date} | Time: ${bus.departure_time}<br/>
+      Seats: ${bus.total_seats}<br/>
+      Booked: ${bus.booked_seats.length}<br/>
+      Prices: AC ₹${bus.price_ac}, Non-AC ₹${bus.price_non_ac}, Sleeper ₹${bus.price_sleeper}<br/>
+    `;
+    container.appendChild(card);
+  });
+}
 
-    checkAuthor();
-  </script>
+init();
+</script>
+
 </body>
 </html>
