@@ -34,7 +34,43 @@
     }
   </style>
 </head>
+
+<script>
+  const supabase = supabase.createClient('https://kttdmdmbakgjzyqfejbi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0dGRtZG1iYWtnanp5cWZlamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1MDk2MDEsImV4cCI6MjA2NzA4NTYwMX0.ncfKBBY99Iad8qLqzD3ingzYivmAQqaLvAJrwqePJOs');
+
+  async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const nav = document.getElementById("nav");
+
+    if (session?.user) {
+      const userEmail = session.user.email;
+      const isAuthor = userEmail.endsWith("@yourcompany.com"); // You can customize this logic
+
+      nav.innerHTML = `
+        👋 Welcome, ${userEmail} |
+        <a href="profile.html">Profile</a> |
+        ${isAuthor ? `<a href="author-dashboard.html">Author Panel</a> |` : ""}
+        <button onclick="logout()">Logout</button>
+      `;
+    } else {
+      nav.innerHTML = `
+        <a href="login.html">Login</a> |
+        <a href="signup.html">Signup</a>
+      `;
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    location.reload();
+  }
+
+  checkAuth();
+</script>
 <body>
+<div id="nav" style="padding: 20px;">
+  <!-- Dynamic login/logout -->
+</div>
   <div class="container">
     <h2>Book Your Bus 🚌</h2>
     <form id="searchForm">
